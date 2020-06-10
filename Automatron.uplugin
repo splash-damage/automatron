@@ -1,0 +1,28 @@
+{
+	"FileVersion": 3,
+	"Version": 3,
+	"VersionName": "1.1a",
+	"FriendlyName": "Automatron",
+	"Description": "Plugin that provides improved automated tests for C++ and Blueprints",
+	"Category": "Other",
+	"CreatedBy": "Miguel Fernandez Arce",
+	"CreatedByURL": "",
+	"DocsURL": "https://splash-damage.github.io/Automatron",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "Automatron",
+			"Type": "DeveloperTool",
+			"LoadingPhase": "PreDefault"
+		},
+		{
+			"Name": "AutomatronTest",
+			"Type": "DeveloperTool",
+			"LoadingPhase": "PreDefault"
+		}
+	]
+}
