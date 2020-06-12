@@ -1,5 +1,7 @@
 // Copyright 2020 Splash Damage, Ltd. - All Rights Reserved.
 
+#pragma once
+
 #include <CoreMinimal.h>
 #include <Misc/AutomationTest.h>
 
@@ -255,8 +257,9 @@ public:
 	virtual bool IsStressTest() const { return false; }
 	virtual uint32 GetRequiredDeviceNum() const override { return 1; }
 
+	virtual FString GetTestSourceFileName() const override;
+	virtual int32 GetTestSourceFileLine() const override;
 	virtual FString GetTestSourceFileName(const FString& InTestName) const override;
-
 	virtual int32 GetTestSourceFileLine(const FString& InTestName) const override;
 
 	virtual void GetTests(TArray<FString>& OutBeautifiedNames, TArray<FString>& OutTestCommands) const override;
@@ -499,4 +502,15 @@ inline void FTestSpecBase::EnsureDefinitions() const
 		const_cast<FTestSpecBase*>(this)->RunDefine();
 		const_cast<FTestSpecBase*>(this)->BakeDefinitions();
 	}
+}
+
+
+inline FString FTestSpecBase::GetTestSourceFileName() const
+{
+	return FAutomationTestBase::GetTestSourceFileName();
+}
+
+inline int32 FTestSpecBase::GetTestSourceFileLine() const
+{
+	return FAutomationTestBase::GetTestSourceFileLine();
 }

@@ -155,7 +155,7 @@ FString FTestSpecBase::GetTestSourceFileName(const FString& InTestName) const
 		return (*Spec)->Filename;
 	}
 
-	return FAutomationTestBase::GetTestSourceFileName();
+	return GetTestSourceFileName();
 }
 
 int32 FTestSpecBase::GetTestSourceFileLine(const FString& InTestName) const
@@ -172,7 +172,7 @@ int32 FTestSpecBase::GetTestSourceFileLine(const FString& InTestName) const
 		return (*Spec)->LineNumber;
 	}
 
-	return FAutomationTestBase::GetTestSourceFileLine();
+	return GetTestSourceFileLine();
 }
 
 void FTestSpecBase::GetTests(TArray<FString>& OutBeautifiedNames, TArray<FString>& OutTestCommands) const
