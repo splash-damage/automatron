@@ -6,7 +6,7 @@
 
 **Unreal Engine 4** plugin providing a simplified automated testing framework.
 
-[Source](https://gitlab.splashdamage.com/ue4-plugins/automatron)
+[Source](https://github.com/splash-damage/Automatron)
 [Get Started](/?id=automatron)
 
 ![color](#1E2229)
