@@ -2,9 +2,4 @@
 
 #include "AutomatronModule.h"
 
-#define LOCTEXT_NAMESPACE "FAutomatronModule"
-
-
-#undef LOCTEXT_NAMESPACE
-
 IMPLEMENT_MODULE(FAutomatronModule, Automatron)

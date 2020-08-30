@@ -18,13 +18,9 @@ public class Automatron : ModuleRules
 			"FunctionalTesting"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[]
-		{
-		});
-
 		if (Target.bBuildEditor)
 		{
-			PrivateDependencyModuleNames.Add("UnrealEd");
+			PublicDependencyModuleNames.Add("UnrealEd");
 		}
 	}
 }

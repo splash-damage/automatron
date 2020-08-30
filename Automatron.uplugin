@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 3,
-	"VersionName": "1.1a",
+	"VersionName": "1.2",
 	"FriendlyName": "Automatron",
 	"Description": "Plugin that provides improved automated tests for C++ and Blueprints",
 	"Category": "Other",

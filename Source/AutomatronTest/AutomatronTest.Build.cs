@@ -12,12 +12,17 @@ public class AutomatronTest : ModuleRules
 
         PublicDependencyModuleNames.AddRange(new string[] {
 			"Core",
-			"Automatron",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {
 			"CoreUObject",
-			"Engine"
+			"Engine",
+			"Automatron"
 		});
+
+		if (Target.bBuildEditor)
+		{
+			PrivateDependencyModuleNames.Add("UnrealEd");
+		}
 	}
 }

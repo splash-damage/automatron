@@ -8,12 +8,12 @@
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-SPEC(FAutomatronSpec, FTestSpec, "Automatron",
+SPEC(FAutomatronSpec, Automatron::FTestSpec, "Automatron",
 	EAutomationTestFlags::EngineFilter |
 	EAutomationTestFlags::HighPriority |
 	EAutomationTestFlags::EditorContext)
 {
-	It("Can run a test", [this]() {
+	It("Can run a test", []() {
 		// Succeed
 	});
 }
