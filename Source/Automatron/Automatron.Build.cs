@@ -8,14 +8,15 @@ public class Automatron : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		bEnforceIWYU = true;
-        bLegacyPublicIncludePaths = false;
+		bLegacyPublicIncludePaths = false;
 
-        PublicDependencyModuleNames.AddRange(new string[]
+		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core",
 			"CoreUObject",
 			"Engine",
-			"FunctionalTesting"
+			"FunctionalTesting",
+			"EngineSettings"
 		});
 
 		if (Target.bBuildEditor)

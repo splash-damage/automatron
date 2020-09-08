@@ -17,8 +17,9 @@ public class AutomatronTest : ModuleRules
 		PrivateDependencyModuleNames.AddRange(new string[] {
 			"CoreUObject",
 			"Engine",
-			"Automatron"
-		});
+			"Automatron",
+            "EngineSettings"
+        });
 
 		if (Target.bBuildEditor)
 		{
