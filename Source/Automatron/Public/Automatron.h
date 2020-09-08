@@ -703,6 +703,7 @@ namespace Automatron
 
 #endif	  // WITH_DEV_AUTOMATION_TESTS
 
+
 ////////////////////////////////////////////////////////////////
 // GENERATION MACROS
 
