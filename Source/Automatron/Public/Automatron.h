@@ -39,15 +39,13 @@
 
 #include <CoreMinimal.h>
 #include <Engine/GameInstance.h>
+#include <Engine/Engine.h>
 #include <EngineUtils.h>
 #include <GameFramework/GameModeBase.h>
 #include <GameMapsSettings.h>
 #include <Misc/AutomationTest.h>
 #include <Tests/AutomationCommon.h>
 
-#ifndef WITH_DEV_AUTOMATION_TESTS
-#	define WITH_DEV_AUTOMATION_TESTS 1
-#endif
 
 #if WITH_EDITOR
 #	include <Editor.h>
@@ -57,13 +55,13 @@
 ////////////////////////////////////////////////////////////////
 // DEFINITIONS
 
-#if WITH_DEV_AUTOMATION_TESTS
 namespace Automatron
 {
 	class FTestSpecBase;
 
 	struct FTestWorldSettings
 	{
+		TSubclassOf<UGameInstance> GameInstance;
 		TSubclassOf<AGameModeBase> GameMode = AGameModeBase::StaticClass();
 
 		bool bShouldTick = false;
@@ -71,19 +69,41 @@ namespace Automatron
 
 	namespace Spec
 	{
+		class FRegister
+		{
+		public:
+			DECLARE_EVENT(FRegister, FOnSetup);
+
+			static FOnSetup& OnSetup()
+			{
+				static FOnSetup Delegate{};
+				return Delegate;
+			}
+		};
+
 		/////////////////////////////////////////////////////
 		// Initializes an spec instance at global execution time
 		// and registers it to the system
 		template <typename T>
-		struct TRegister
+		class TRegister : public FRegister
 		{
-			static TRegister<T> Register;
+		public:
 
-			T Instance;
+			// Just by existing, this instance will define the class and register the spec
+			static TRegister<T> Instance;
 
-			TRegister() : Instance{}
+
+			TRegister()
 			{
-				Instance.Setup();
+				OnSetup().AddStatic(&TRegister<T>::Setup);
+			}
+
+		private:
+
+			static void Setup()
+			{
+				static T Spec{};
+				Spec.Setup();
 			}
 		};
 
@@ -311,8 +331,8 @@ namespace Automatron
 		Spec::FContext CurrentContext;
 
 	public:
-		FTestSpecBase(const FString& InName, const bool bInComplexTask)
-			: FAutomationTestBase(InName, bInComplexTask)
+		FTestSpecBase()
+			: FAutomationTestBase("", false)
 			, RootDefinitionScope(MakeShared<FSpecDefinitionScope>())
 		{
 			DefinitionScopeStack.Push(RootDefinitionScope.ToSharedRef());
@@ -618,7 +638,7 @@ namespace Automatron
 		TWeakObjectPtr<UWorld> MainWorld;
 
 	public:
-		FTestSpec() : FTestSpecBase("", false) {}
+		FTestSpec() : FTestSpecBase() {}
 
 		virtual FString GetTestSourceFileName() const override
 		{
@@ -671,7 +691,7 @@ namespace Automatron
 		void TickWorldUntil(UWorld* World, bool bUseRealtime, TFunction<bool(float)> Delegate);
 		void TickWorld(UWorld* World, float Duration, bool bUseRealtime = false);
 
-		UGameInstance* CreateGameInstance(UObject* Context);
+		UGameInstance* CreateGameInstance(const FTestWorldSettings& Settings, UObject* Context);
 
 		bool DestroyWorld(UWorld* World);
 
@@ -697,21 +717,23 @@ namespace Automatron
 	namespace Spec
 	{
 		template <typename T>
-		TRegister<T> TRegister<T>::Register{};
+		TRegister<T> TRegister<T>::Instance{};
+	}
+
+	static void RegisterSpecs()
+	{
+		Spec::FRegister::OnSetup().Broadcast();
 	}
 }	 // namespace Automatron
-
-#endif	  // WITH_DEV_AUTOMATION_TESTS
 
 
 ////////////////////////////////////////////////////////////////
 // GENERATION MACROS
 
-#if WITH_DEV_AUTOMATION_TESTS
-#	define GENERATE_SPEC(TClass, PrettyName, TFlags) \
+#define GENERATE_SPEC(TClass, PrettyName, TFlags) \
 		GENERATE_SPEC_PRIVATE(TClass, PrettyName, TFlags, __FILE__, __LINE__)
 
-#	define GENERATE_SPEC_PRIVATE(TClass, PrettyName, TFlags, FileName, LineNumber)          \
+#define GENERATE_SPEC_PRIVATE(TClass, PrettyName, TFlags, FileName, LineNumber)          \
 	private:                                                                                 \
 		void Setup()                                                                         \
 		{                                                                                    \
@@ -719,35 +741,23 @@ namespace Automatron
 		}                                                                                    \
 		static Automatron::Spec::TRegister<TClass>& __meta_register()                        \
 		{                                                                                    \
-			return Automatron::Spec::TRegister<TClass>::Register;                            \
+			return Automatron::Spec::TRegister<TClass>::Instance;                            \
 		}                                                                                    \
 		friend Automatron::Spec::TRegister<TClass>;                                          \
                                                                                              \
 		virtual void Define() override
 
-#	define SPEC(TClass, TParent, PrettyName, TFlags)  \
+#define SPEC(TClass, TParent, PrettyName, TFlags)  \
 		class TClass : public TParent                  \
 		{                                              \
 			GENERATE_SPEC(TClass, PrettyName, TFlags); \
 		};                                             \
 		void TClass::Define()
 
-#else	 // WITH_DEV_AUTOMATION_TESTS
-
-#	define GENERATE_SPEC(TClass, PrettyName, TFlags)
-#	define SPEC(TClass, TParent, PrettyName, TFlags) \
-		class TClass                                  \
-		{                                             \
-			void Define();                            \
-		};                                            \
-		void TClass::Define()
-
-#endif	  // WITH_DEV_AUTOMATION_TESTS
 
 ////////////////////////////////////////////////////////////////
 // DECLARATIONS
 
-#if WITH_DEV_AUTOMATION_TESTS
 namespace Automatron
 {
 	namespace Commands
@@ -1265,7 +1275,7 @@ namespace Automatron
 
 	inline UWorld* FTestSpec::CreateWorld(FTestWorldSettings Settings)
 	{
-		auto* GameInstance = CreateGameInstance(GEngine);
+		auto* GameInstance = CreateGameInstance(Settings, GEngine);
 		GameInstance->AddToRoot();
 
 		GameInstance->InitializeStandalone(TEXT("FAbilitySpec::World"), nullptr);
@@ -1339,10 +1349,14 @@ namespace Automatron
 		});
 	}
 
-	inline UGameInstance* FTestSpec::CreateGameInstance(UObject* Context)
+	inline UGameInstance* FTestSpec::CreateGameInstance(const FTestWorldSettings& Settings, UObject* Context)
 	{
-		FSoftClassPath GameInstanceClassName = GetDefault<UGameMapsSettings>()->GameInstanceClass;
-		UClass* GameInstanceClass = GameInstanceClassName.TryLoadClass<UGameInstance>();
+		UClass* GameInstanceClass = Settings.GameInstance.Get();
+		if(!GameInstanceClass)
+		{
+			FSoftClassPath GameInstanceClassName = GetDefault<UGameMapsSettings>()->GameInstanceClass;
+			GameInstanceClass = GameInstanceClassName.TryLoadClass<UGameInstance>();
+		}
 
 		if (!GameInstanceClass)
 		{
@@ -1451,5 +1465,3 @@ namespace Automatron
 		Reregister(InName);
 	}
 }	 // namespace Automatron
-
-#endif	  // WITH_DEV_AUTOMATION_TESTS
