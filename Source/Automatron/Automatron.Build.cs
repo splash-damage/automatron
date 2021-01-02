@@ -8,23 +8,20 @@ public class Automatron : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		bEnforceIWYU = true;
-        bLegacyPublicIncludePaths = false;
+		bLegacyPublicIncludePaths = false;
 
-        PublicDependencyModuleNames.AddRange(new string[]
+		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core",
 			"CoreUObject",
 			"Engine",
-			"FunctionalTesting"
-		});
-
-		PrivateDependencyModuleNames.AddRange(new string[]
-		{
+			"FunctionalTesting",
+			"EngineSettings"
 		});
 
 		if (Target.bBuildEditor)
 		{
-			PrivateDependencyModuleNames.Add("UnrealEd");
+			PublicDependencyModuleNames.Add("UnrealEd");
 		}
 	}
 }
