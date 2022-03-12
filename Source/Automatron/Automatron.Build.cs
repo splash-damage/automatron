@@ -21,7 +21,7 @@ public class Automatron : ModuleRules
 
 		if (Target.bBuildEditor)
 		{
-			PublicDependencyModuleNames.Add("UnrealEd");
+			PrivateDependencyModuleNames.Add("UnrealEd");
 		}
 	}
 }
